@@ -14,50 +14,68 @@ function love.load()
     gridYCount = 15
 
     moveFood()
+
+    snakeAlive = true
 end
 
 function love.update(dt)
     timer = timer + dt
-    local timerLimit = 0.15
-    if timer > timerLimit then
-        timer = timer - timerLimit
 
-        if #directionQueue > 1 then
-            table.remove( directionQueue, 1)
+    if snakeAlive then
+        local timerLimit = 0.15
+        if timer > timerLimit then
+            timer = timer - timerLimit
+
+            if #directionQueue > 1 then
+                table.remove( directionQueue, 1)
+            end
+
+            local nextXPosition = snakeSegments[1].x 
+            local nextYPosition = snakeSegments[1].y
+
+            if directionQueue[1] == 'right' then
+                nextXPosition = nextXPosition + 1
+                if nextXPosition > gridXCount then
+                    nextXPosition = 1
+                end
+            elseif directionQueue[1] == 'left' then
+                nextXPosition = nextXPosition - 1
+                if nextXPosition < 1 then
+                    nextXPosition = gridXCount
+                end
+            elseif directionQueue[1] == 'down' then
+                nextYPosition = nextYPosition + 1
+                if nextYPosition > gridYCount then
+                    nextYPosition = 1
+                end
+            elseif directionQueue[1] == 'up' then
+                nextYPosition = nextYPosition - 1
+                if nextYPosition < 1 then
+                    nextYPosition = gridYCount
+                end
+            end
+
+            local canMove = true
+
+            for segmentIndex, segment in ipairs(snakeSegments) do
+                if segmentIndex ~= #snakeSegments and segment.x == nextXPosition and segment.y == nextYPosition then
+                    canMove = false
+                end
+            end
+
+            if canMove then
+                table.insert(snakeSegments, 1, { x = nextXPosition, y = nextYPosition})
+                if snakeSegments[1].x == foodPosition.x and snakeSegments[1].y == foodPosition.y then
+                    moveFood()
+                else
+                    table.remove(snakeSegments)
+                end
+            else
+                snakeAlive = false
+            end
         end
-
-        local nextXPosition = snakeSegments[1].x 
-        local nextYPosition = snakeSegments[1].y
-
-        if directionQueue[1] == 'right' then
-            nextXPosition = nextXPosition + 1
-            if nextXPosition > gridXCount then
-                nextXPosition = 1
-            end
-        elseif directionQueue[1] == 'left' then
-            nextXPosition = nextXPosition - 1
-            if nextXPosition < 1 then
-                nextXPosition = gridXCount
-            end
-        elseif directionQueue[1] == 'down' then
-            nextYPosition = nextYPosition + 1
-            if nextYPosition > gridYCount then
-                nextYPosition = 1
-            end
-        elseif directionQueue[1] == 'up' then
-            nextYPosition = nextYPosition - 1
-            if nextYPosition < 1 then
-                nextYPosition = gridYCount
-            end
-        end
-
-        table.insert(snakeSegments, 1, { x = nextXPosition, y = nextYPosition})
-
-        if snakeSegments[1].x == foodPosition.x and snakeSegments[1].y == foodPosition.y then
-            moveFood()
-        else
-            table.remove(snakeSegments)
-        end
+    elseif timer >= 2 then
+        love.load()
     end
 end
 
@@ -71,7 +89,11 @@ function love.draw()
     love.graphics.rectangle('fill', 0, 0, gridXCount * cellSize, gridYCount * cellSize)
 
     for segmentIndex, segment in ipairs(snakeSegments) do
-        love.graphics.setColor(.6, 1, .32)
+        if snakeAlive then
+            love.graphics.setColor(.6, 1, .32)
+        else
+            love.graphics.setColor(.5, .5, .5)
+        end
         drawCell(segment.x, segment.y)
     end
 
