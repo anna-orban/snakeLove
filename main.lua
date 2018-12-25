@@ -1,21 +1,8 @@
 function love.load()
-
-    snakeSegments = {
-        {x = 3, y = 1},
-        {x = 2, y = 1},
-        {x = 1, y = 1},
-    }
-
-    timer = 0
-
-    directionQueue = {'right'}
-
     gridXCount = 20
     gridYCount = 15
 
-    moveFood()
-
-    snakeAlive = true
+    reset()
 end
 
 function love.update(dt)
@@ -112,6 +99,19 @@ function love.keypressed(key)
     elseif key == 'down' and directionQueue[#directionQueue] ~= 'down' and directionQueue[#directionQueue] ~= 'up' then
         table.insert(directionQueue, 'down')
     end
+end
+
+
+function reset()
+    snakeSegments = {
+        {x = 3, y = 1},
+        {x = 2, y = 1},
+        {x = 1, y = 1},
+    }
+    timer = 0
+    directionQueue = {'right'}
+    moveFood()
+    snakeAlive = true
 end
 
 function moveFood()
