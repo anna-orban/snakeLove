@@ -13,6 +13,7 @@ function love.load()
     gridXCount = 20
     gridYCount = 15
 
+    moveFood()
 end
 
 function love.update(dt)
@@ -51,20 +52,31 @@ function love.update(dt)
         end
 
         table.insert(snakeSegments, 1, { x = nextXPosition, y = nextYPosition})
-        table.remove(snakeSegments)
+
+        if snakeSegments[1].x == foodPosition.x and snakeSegments[1].y == foodPosition.y then
+            moveFood()
+        else
+            table.remove(snakeSegments)
+        end
     end
 end
 
 function love.draw()
     local cellSize = 15
+    local function drawCell(x, y)
+        love.graphics.rectangle('fill', (x - 1) * cellSize, (y -1) * cellSize, cellSize -1, cellSize - 1)
+    end
 
     love.graphics.setColor(.28, .28, .28)
     love.graphics.rectangle('fill', 0, 0, gridXCount * cellSize, gridYCount * cellSize)
 
     for segmentIndex, segment in ipairs(snakeSegments) do
         love.graphics.setColor(.6, 1, .32)
-        love.graphics.rectangle('fill', (segment.x - 1) * cellSize, (segment.y - 1) * cellSize, cellSize - 1, cellSize - 1)
+        drawCell(segment.x, segment.y)
     end
+
+    love.graphics.setColor(1, .3, .3)
+    drawCell(foodPosition.x, foodPosition.y)
     
 end
 
@@ -78,4 +90,11 @@ function love.keypressed(key)
     elseif key == 'down' and directionQueue[#directionQueue] ~= 'down' and directionQueue[#directionQueue] ~= 'up' then
         table.insert(directionQueue, 'down')
     end
+end
+
+function moveFood()
+    foodPosition = {
+        x = love.math.random(1, gridXCount),
+        y = love.math.random(1, gridYCount)
+    }
 end
