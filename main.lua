@@ -1,4 +1,6 @@
 function love.load()
+    love.window.setMode(700, 525)
+
     gridXCount = 20
     gridYCount = 15
 
@@ -67,7 +69,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    local cellSize = 15
+    local cellSize = 35
     local function drawCell(x, y)
         love.graphics.rectangle('fill', (x - 1) * cellSize, (y -1) * cellSize, cellSize -1, cellSize - 1)
     end
